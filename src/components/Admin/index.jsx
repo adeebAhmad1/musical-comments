@@ -19,66 +19,58 @@ class Admin extends Component {
           sound.id = doc.id;
           sounds.push(sound);
         });
-        sounds.sort((a, b) => a.alphabet - b.alphabet);
+        sounds.sort( (a, b)=> {
+          let alphabetA = a.alphabet
+          if(alphabetA === "aa") alphabetA =  "/"
+          if(alphabetA === "bb") alphabetA =  " "
+          if(alphabetA === "cc")  alphabetA = "\\"
+          if(alphabetA === "dd")  alphabetA = ">";
+          if(alphabetA === "ee")  alphabetA = "<";
+          if(alphabetA === "ff")  alphabetA = "?";
+          if(alphabetA === "hh")  alphabetA = "\"";
+          if(alphabetA === "ii")  alphabetA = "|";
+          if(alphabetA === "jj")  alphabetA = ":";
+          if(alphabetA === "kk")  alphabetA = "*";
+          let alphabetB = b.alphabet
+          if(alphabetB === "aa") alphabetB =  "/"
+          if(alphabetB === "bb") alphabetB =  " "
+          if(alphabetB === "cc")  alphabetB = "\\"
+          if(alphabetB === "dd")  alphabetB = ">";
+          if(alphabetB === "ee")  alphabetB = "<";
+          if(alphabetB === "ff")  alphabetB = "?";
+          if(alphabetB === "hh")  alphabetB = "\"";
+          if(alphabetB === "ii")  alphabetB = "|";
+          if(alphabetB === "jj")  alphabetB = ":";
+          if(alphabetB === "kk")  alphabetB = "*";
+            if (alphabetA < alphabetB) {
+                return -1;
+            }
+            if (alphabetB > alphabetA) {
+                return 1;
+            }
+            return 0;
+        });
+        console.log(sounds)
         this.setState({ sounds, isLoading: false });
         return sounds;
       })
       .then((sounds) => {
         let alphabets = [
-          "a",
-          "b",
-          "c",
-          "d",
-          "e",
-          "f",
-          "g",
-          "h",
-          "i",
-          "j",
-          "k",
-          "l",
-          "m",
-          "n",
-          "o",
-          "p",
-          "q",
-          "r",
-          "s",
-          "t",
-          "u",
-          "v",
-          "w",
-          "x",
-          "y",
-          "z",
-          "1",
-          "2",
-          "3",
-          "4",
-          "5",
-          "6",
-          "7",
-          "8",
-          "9",
-          "0",
-          ".",
-          ",",
-          "`",
-          ";",
-          "[",
-          "]",
-          "-",
-          "=",
-          "'",
-          "aa",
-          "bb",
-          "cc"
+          "a","b","c","d","e","f","g",
+          "h","i","j","k","l","m","n",
+          "o","p","q","r","s","t","u",
+          "v","w","x","y","z","1","2",
+          "3","4","5","6","7","8","9",
+          "0",".",",","`",";","[","]",
+          "-","=","'","ñ","aa","bb","cc",
+          "~", "!", "@", "#", "$", "%", "^", "&", "(", ")", "_", "+", "{", "}",
+          "dd","ee","ff","hh","ii","jj","kk"
         ];
-        alphabets = alphabets.filter(el=>{
-          const remaining = sounds.find(sound=> sound.alphabet === el);
-          return remaining ? false : true
-        })
         if (sounds.length < alphabets.length) {
+          alphabets = alphabets.filter(el=>{
+            const remaining = sounds.find(sound=> sound.alphabet === el);
+            return remaining ? false : true
+          })
           alphabets.forEach((alphabet) => {
             storageRef
               .child(`audio/${alphabet}.mp3`)
@@ -87,8 +79,9 @@ class Admin extends Component {
                 const soundObj = { alphabet, sound };
                 db.collection("sounds")
                   .add(soundObj)
-                  .then(() => sounds.push(soundObj));
-                this.setState({ sounds, isLoading: false });
+                  .then(() => sounds.push(soundObj)).then(()=>{
+                    this.setState({ sounds: sounds.sort(), isLoading: false });
+                  });
               });
           });
         }
@@ -97,9 +90,17 @@ class Admin extends Component {
   showSounds = () => {
 
     return this.state.sounds.map((el, i) => {
-      if(el.alphabet === "cc")  el.alphabet = "\\"
-      if(el.alphabet === "bb") el.alphabet =  "SpaceBar"
-      if(el.alphabet === "aa") el.alphabet =  "/"
+      let { alphabet } = el;
+      if(alphabet === "aa") alphabet =  "/"
+      if(alphabet === "bb") alphabet =  "SpaceBar"
+      if(alphabet === "cc")  alphabet = "\\"
+      if(alphabet === "dd")  alphabet = ">";
+      if(alphabet === "ee")  alphabet = "<";
+      if(alphabet === "ff")  alphabet = "?";
+      if(alphabet === "hh")  alphabet = "\"";
+      if(alphabet === "ii")  alphabet = "|";
+      if(alphabet === "jj")  alphabet = ":";
+      if(alphabet === "kk")  alphabet = "*";
       return (
         <div
           className=""
@@ -108,7 +109,7 @@ class Admin extends Component {
         >
           <span style={{ display: `inline-block`, width: `30px` }}>
             {" "}
-            {el.alphabet}{" "}
+            {alphabet}{" "}
           </span>
           <input
             id={`file-${i}`}

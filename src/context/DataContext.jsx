@@ -6,9 +6,9 @@ class DataContextProvider extends Component {
     comments: [],
     isLoading: true,
     soundPlaying: false,
-    sounds: []
+    sounds: [],
   };
-  getSounds = ()=>{
+  getSounds = () => {
     db.collection("sounds")
       .get()
       .then((snapShot) => {
@@ -21,7 +21,7 @@ class DataContextProvider extends Component {
         this.getComments();
         this.setState({ sounds });
       });
-  }
+  };
   componentDidMount() {
     this.getSounds();
   }
@@ -35,18 +35,30 @@ class DataContextProvider extends Component {
           comment.id = doc.id;
           comments.push(comment);
         });
-        this.setState({ comments, isLoading: false });
+        comments.sort((a, b) => b.date - a.date)
+        this.setState({ comments });
+        setTimeout(() => {
+          this.setState({ isLoading: false });
+        }, 2500);
       });
   };
   addNewComment = (title) => {
     this.setState({ isLoading: true });
     db.collection("comments")
-      .add({ title })
-      .then(() => {
-        this.getComments();
-      });
+      .add({ title,date: new Date().getTime() })
+      .then(this.getComments);
   };
-  showAudio = ()=> this.state.sounds.map(el=> <audio key={ el.alphabet } data-isplaying={false} data-text={el.alphabet} preload="true" style={{display:`none`}} src={el.sound}></audio>)
+  showAudio = () =>
+    this.state.sounds.map((el) => (
+      <audio
+        key={el.alphabet}
+        data-isplaying={false}
+        data-text={el.alphabet}
+        preload="true"
+        style={{ display: `none` }}
+        src={el.sound}
+      ></audio>
+    ));
   render() {
     return (
       <DataContext.Provider

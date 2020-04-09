@@ -12,10 +12,17 @@ class Comments extends Component {
   };
   onKeyDown = (e) => {
     if (e.key) {
-      let key= e.key;
-      if(e.key === "/") key = "aa";
-      if(e.key === " ") key = "bb";
-      if(e.key === "\\") key= "cc";
+      let { key }= e;
+      if(key === "/") key = "aa";
+      if(key === " ") key = "bb";
+      if(key === "\\") key= "cc";
+      if(key === ">" )  key = "dd";
+      if(key === "<" )  key = "ee";
+      if(key === "?" )  key = "ff";
+      if(key === "\"" )  key = "hh";
+      if(key === "|" )  key = "ii";
+      if(key === ":" )  key = "jj";
+      if(key === "*" )  key = "kk";
       let soundSelected = Array.from(document.querySelectorAll(`audio[data-text="${key.toLowerCase()}"]`));
       soundSelected = soundSelected.filter(el=> el.dataset.isplaying === "false" );
       if(soundSelected.length > 0){
