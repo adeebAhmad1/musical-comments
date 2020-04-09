@@ -5,7 +5,7 @@ import Loader from "../utils/Loader";
 class Content extends Component {
   static contextType = DataContext;
   state = {
-    // soundPlaying: false,
+    soundPlaying: false,
     previousPlaying: []
   };
   showComments = () => {
@@ -16,6 +16,7 @@ class Content extends Component {
           <button data-text={el.title} onClick={this.listen}>
             Listen
           </button>
+          <button onClick={window.location.reload}>Stop</button>
         </div>
       );
     });
@@ -23,8 +24,7 @@ class Content extends Component {
   listen = (e) => {
     const letters = e.target.dataset.text.split("");
     if (!this.state.soundPlaying) {
-      document.querySelectorAll("audio").forEach(el=> el.pause())
-      // this.setState({ soundPlaying: true });
+      this.setState({ soundPlaying: true });
       let sounds = letters.map((el) => {
         const alphabet = this.context.sounds.find((sound) => {
           if (el === "/") el = "aa";
@@ -59,9 +59,9 @@ class Content extends Component {
               soundSelected.forEach(el=>el.onended = ()=> el.dataset.isplaying = "false")
               soundSelected[0].play();
               if (sounds.length - 1 === i){
-                // this.setState({ soundPlaying: false });
+                this.setState({ soundPlaying: false });
               }
-            }, i * 400);
+            }, i * 200);
           }
         }
       });
