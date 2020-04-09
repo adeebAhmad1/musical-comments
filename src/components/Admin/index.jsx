@@ -178,7 +178,7 @@ class Admin extends Component {
         )}
       </div>
     ) : (
-      <Loader adminPage={true} history={this.props.history} />
+      <Loader adminPage={this.context.isAuth} history={this.props.history} />
     );
   }
 }

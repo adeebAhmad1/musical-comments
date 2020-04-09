@@ -41,11 +41,10 @@ class Content extends Component {
         console.log(el)
         if (el.alphabet) {
           let soundSelected = Array.from(
-            document.querySelectorAll(`audio[data-text="${el.alphabet}"]`)
+            document.querySelectorAll(`audio[data-text="${el.alphabet.toLowerCase()}"]`)
           );
-          soundSelected = soundSelected.filter(
-            (el) => el.dataset.isplaying === "false"
-          );
+          soundSelected = soundSelected.filter( (el) => el.dataset.isplaying === "false" );
+          soundSelected.forEach(el=>el.onended = ()=> el.dataset.isplaying = false)
           if (i === 0) {
             soundSelected[0].play();
             soundSelected[0].dataset.isplaying = "abc";
@@ -57,7 +56,7 @@ class Content extends Component {
                 soundSelected[0].play();
                 if (sounds.length - 1 === i)
                   this.setState({ soundPlaying: false });
-              }, i * 900);
+              }, i * 600);
             }
           }
         }
