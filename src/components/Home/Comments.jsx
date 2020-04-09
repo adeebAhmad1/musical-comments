@@ -11,8 +11,13 @@ class Comments extends Component {
     this.setState({ [e.target.name]: e.target.value });
   };
   onKeyDown = (e) => {
+    console.log(e.key)
     if (e.key) {
-      let soundSelected = Array.from(document.querySelectorAll(`audio[data-text="${e.key}"]`));
+      let key= e.key;
+      if(e.key === "/") key = "aa";
+      if(e.key === " ") key = "bb";
+      if(e.key === "\\") key= "cc";
+      let soundSelected = Array.from(document.querySelectorAll(`audio[data-text="${key}"]`));
       soundSelected = soundSelected.filter(el=> !el.dataset.isPlaying );
       if(soundSelected.length > 0){
         soundSelected[0].play();
@@ -43,7 +48,6 @@ class Comments extends Component {
             placeholder="Write a comment.."
           ></textarea>
           <button>Comment</button>
-          
         </form>
       </div>
     );

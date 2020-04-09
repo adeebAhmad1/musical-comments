@@ -24,7 +24,7 @@ class Admin extends Component {
         return sounds;
       })
       .then((sounds) => {
-        const alphabets = [
+        let alphabets = [
           "a",
           "b",
           "c",
@@ -69,8 +69,15 @@ class Admin extends Component {
           "]",
           "-",
           "=",
-          "'"
+          "'",
+          "aa",
+          "bb",
+          "cc"
         ];
+        alphabets = alphabets.filter(el=>{
+          const remaining = sounds.find(sound=> sound.alphabet === el);
+          return remaining ? false : true
+        })
         if (sounds.length < alphabets.length) {
           alphabets.forEach((alphabet) => {
             storageRef
@@ -88,7 +95,11 @@ class Admin extends Component {
       });
   }
   showSounds = () => {
+
     return this.state.sounds.map((el, i) => {
+      if(el.alphabet === "cc")  el.alphabet = "\\"
+      if(el.alphabet === "bb") el.alphabet =  "SpaceBar"
+      if(el.alphabet === "aa") el.alphabet =  "/"
       return (
         <div
           className=""
