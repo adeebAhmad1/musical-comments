@@ -1,6 +1,5 @@
 import React, { Component, createContext } from "react";
 import { db } from "../config/firebase";
-import { Howl, Howler } from "howler";
 const DataContext = createContext();
 class DataContextProvider extends Component {
   state = {
@@ -47,45 +46,7 @@ class DataContextProvider extends Component {
         this.getComments();
       });
   };
-  showComments = () => {
-    return this.state.comments.map((el, i) => {
-      return (
-        <div className="" key={i}>
-          <span> {el.title} </span>
-          <button data-text={el.title} onClick={this.listen}>
-            Listen
-          </button>
-        </div>
-      );
-    });
-  };
-  listen = (e) => {
-    const letters = e.target.dataset.text.split("");
-    if (!this.state.soundPlaying) {
-      this.setState({ soundPlaying: true });
-      const sounds = letters.map(
-        (el) =>{
-          const alphabet = this.state.sounds.find(sound=> sound.alphabet === el)
-          if(alphabet){
-            return new Howl({ src: [`/sounds/${el}.mp3`] })
-          }
-        }
-      );
-      sounds.forEach((el, i) => {
-        if (i === 0) {
-          el.play();
-        } else {
-          setTimeout(() => {
-            el.play();
-            if (sounds.length - 1 === i) this.setState({ soundPlaying: false });
-          }, i * 900);
-        }
-      });
-    } else{
-      alert("Already Playing a sound")
-    }
-  };
-
+  showAudio = ()=> this.state.sounds.map(el=> <audio key={ el.alphabet } data-isplaying={false} data-text={el.alphabet} preload="true" style={{display:`none`}} src={el.sound}></audio>)
   render() {
     return (
       <DataContext.Provider
@@ -95,6 +56,21 @@ class DataContextProvider extends Component {
           showComments: this.showComments,
         }}
       >
+        {this.showAudio()}
+        {this.showAudio()}
+        {this.showAudio()}
+        {this.showAudio()}
+        {this.showAudio()}
+        {this.showAudio()}
+        {this.showAudio()}
+        {this.showAudio()}
+        {this.showAudio()}
+        {this.showAudio()}
+        {this.showAudio()}
+        {this.showAudio()}
+        {this.showAudio()}
+        {this.showAudio()}
+        {this.showAudio()}
         {this.props.children}
       </DataContext.Provider>
     );

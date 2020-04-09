@@ -1,38 +1,26 @@
 import React, { Component } from "react";
-import { Howl } from "howler";
 import { DataContext } from "../../context/DataContext";
 
 class Comments extends Component {
   static contextType = DataContext;
   state = {
-    sounds: [],
     comment: "",
+    previousKey: null
   };
   handleChange = (e) => {
     this.setState({ [e.target.name]: e.target.value });
   };
   onKeyDown = (e) => {
     if (e.key) {
-      let sound = null
-      const soundSelected = this.context.sounds.find(
-        (sound) => sound.alphabet === e.key
-      );
-      console.log(soundSelected)
-      if(soundSelected) sound = soundSelected.sound
-      if (sound) {
-        var xhr = new XMLHttpRequest();
-        xhr.responseType = "blob";
-        xhr.onload = function (event) {
-          var blob = xhr.response;
-          console.log(blob);
-        };
-        xhr.open("GET", sound);
-        xhr.send();
-        console.log(sound);
-        new Howl({ src: [sound] }).play();
+      let soundSelected = Array.from(document.querySelectorAll(`audio[data-text="${e.key}"]`));
+      soundSelected = soundSelected.filter(el=> !el.dataset.isPlaying );
+      if(soundSelected.length > 0){
+        soundSelected[0].play();
+        soundSelected[0].dataset.isPlaying = true;
       }
     }
   };
+  
   render() {
     return this.context.isLoading ? (
       ""
@@ -55,6 +43,7 @@ class Comments extends Component {
             placeholder="Write a comment.."
           ></textarea>
           <button>Comment</button>
+          
         </form>
       </div>
     );

@@ -6,7 +6,7 @@ export const AuthContext = createContext();
 
 export default class AuthContextProvider extends Component {
   state = {
-    isAuthenticated: false,
+    isAuth: false,
     user: {},
   };
 
@@ -14,12 +14,12 @@ export default class AuthContextProvider extends Component {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         console.log("User is logged in");
-        this.setState({ isAuthenticated: true, user: user });
+        this.setState({ isAuth: true, user: user });
       } else {
         // User is signed out.
         // ...
         console.log("User is logged out");
-        this.setState({ isAuthenticated: false, user: {} });
+        this.setState({ isAuth: false, user: {} });
       }
     });
   };

@@ -1,10 +1,13 @@
 import React, { Component } from "react";
 import { db, storageRef } from "../../config/firebase";
+import Loader from "../utils/Loader";
+import { AuthContext } from "../../context/AuthContext"
 
 class Admin extends Component {
+  static contextType = AuthContext
   state = {
     sounds: [],
-    isLoading: true,
+    isLoading: true
   };
   componentDidMount() {
     db.collection("sounds")
@@ -48,6 +51,25 @@ class Admin extends Component {
           "x",
           "y",
           "z",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "0",
+          ".",
+          ",",
+          "`",
+          ";",
+          "[",
+          "]",
+          "-",
+          "=",
+          "'"
         ];
         if (sounds.length < alphabets.length) {
           alphabets.forEach((alphabet) => {
@@ -119,38 +141,33 @@ class Admin extends Component {
         .put(file)
         .then((snapShot) => {
           snapShot.ref.getDownloadURL().then((sound) => {
-            var xhr = new XMLHttpRequest();
-            xhr.responseType = "blob";
-            xhr.onload = function (event) {
-              var blob = xhr.response;
-            };
-            xhr.open("GET", sound);
-            xhr.send();
+            
             db.collection("sounds")
               .doc(id)
               .update({ sound })
               .then(() => {
-                this.refs[`input-${index}`].value = sound;
                 const sounds = this.state.sounds;
                 sounds[index].sound = sound;
                 this.setState({ sounds, isLoading: false });
-              });
+                return true;
+              })
+              .then(() => (this.refs[`input-${index}`].value = sound));
           });
         });
     }
   };
   render() {
-    return (
+    return this.context.isAuth ? (
       <div>
         <h1>All Sounds</h1>
         {this.state.isLoading ? (
-          <div className="loader_wrapper">
-            <div className="loader"></div>
-          </div>
+          <Loader />
         ) : (
           this.showSounds()
         )}
       </div>
+    ) : (
+      <Loader adminPage={true} history={this.props.history} />
     );
   }
 }
