@@ -4,29 +4,29 @@ import { DataContext } from "../../context/DataContext";
 class Comments extends Component {
   static contextType = DataContext;
   state = {
-    isOk: true,
     down: 0,
     startingTime: [],
     endingTime: [],
     playingTimes: [],
     delayTimes: [],
+    isOk: true
   };
   onKeyUp = (e) => {
-
     if (e.which === 8) return e.preventDefault();
-    if (e.target.value.length < 100) {
-      const { startingTime, endingTime, playingTimes } = this.state;
-      this.setState({ down: 0, endingTime: [...endingTime, Date.now()] });
-      playingTimes.push(Date.now() - startingTime[startingTime.length - 1]);
-      this.setState({ playingTimes });
-      console.log(playingTimes);
+    const { startingTime, endingTime, playingTimes, isOk } = this.state;
+    if(isOk){
+      if (e.target.value.length < 100) {
+        this.setState({ down: 0, endingTime: [...endingTime, Date.now()] });
+        playingTimes.push(Date.now() - startingTime[startingTime.length - 1]);
+        this.setState({ playingTimes });
+      }
     }
   };
   onKeyDown = (e) => {
-    const { down, startingTime, endingTime, isOk, delayTimes } = this.state;
+    const { down, startingTime, endingTime, delayTimes,isOk } = this.state;
     if (e.which === 8) return e.preventDefault();
-    if (down === 0) {
-      if (isOk) {
+    if(isOk){
+      if (down === 0) {
         this.setState({ startingTime: [...startingTime, Date.now()], down: 1 });
         delayTimes.push(Date.now() - endingTime[endingTime.length - 1]);
         this.setState({ delayTimes });
@@ -59,12 +59,18 @@ class Comments extends Component {
               soundSelected[0].dataset.isplaying = true;
             }
           }
-        }
       }
     } else e.preventDefault();
+    }
   };
+  onReset = ()=>{
+    this.refs.comment.value = "";
+    clearTimeout(window.timeOut)
+    this.setState({startingTime: [], delayTimes: [],endingTime: [],playingTimes: [],isOk: true})
+  }
+  onFocus = ()=>window.timeOut = setTimeout(() => this.setState({isOk: false}), 40000);
   render() {
-    const { onChange, onKeyDown, context, state, onKeyUp, refs } = this;
+    const { onChange, onKeyDown, context, state, onKeyUp, refs,onFocus,onReset } = this;
     return context.isLoading ? (
       ""
     ) : (
@@ -73,11 +79,13 @@ class Comments extends Component {
           onSubmit={(e) => {
             e.preventDefault();
             context.addNewComment(refs.comment.value,state.delayTimes,state.playingTimes);
+            this.setState({startingTime: [], delayTimes: [],endingTime: [],playingTimes: [],isOk: true})
             refs.comment.value = "";
           }}
         >
           <textarea
             name="comment"
+            onFocus={onFocus}
             value={state.comment}
             onChange={onChange}
             onKeyDown={onKeyDown}
@@ -88,10 +96,11 @@ class Comments extends Component {
             cols="70"
             rows="5"
             placeholder="Write a comment.."
-            maxLength="100"
+            maxLength={this.state.isOk ? "100" : this.refs.comment.value.length}
           ></textarea>
           <button>Comment</button>
         </form>
+          <button onClick={onReset}>Restart</button>
       </div>
     );
   }

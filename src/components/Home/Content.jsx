@@ -5,23 +5,29 @@ import Loader from "../utils/Loader";
 class Content extends Component {
   static contextType = DataContext;
   state = {
-    soundPlaying: false
+    soundPlaying: false,
   };
   showComments = () => {
-    const {context,listen,state} = this
+    const { context, listen, state } = this;
     return context.comments.map((el, i) => {
-      const { title , delayTimes , playingTimes} = el;
+      const { title, delayTimes, playingTimes } = el;
       return (
         <div key={i}>
           <span> {title} </span>
-          {state.soundPlaying 
-          ? ""
-          :<button onClick={(e)=>listen(title.split(""),delayTimes,playingTimes)}>Listen</button>}
+          {state.soundPlaying ? (
+            ""
+          ) : (
+            <button
+              onClick={(e) => listen(title.split(""), delayTimes, playingTimes)}
+            >
+              Listen
+            </button>
+          )}
         </div>
       );
     });
   };
-  listen = (letters,delayTimes,playingTimes) => {
+  listen = (letters, delayTimes, playingTimes) => {
     if (!this.state.soundPlaying) {
       this.setState({ soundPlaying: true });
       const sounds = letters.map((el) => {
@@ -40,52 +46,77 @@ class Content extends Component {
         });
         return alphabet.alphabet;
       });
-      this.playing(sounds,playingTimes,0,delayTimes)
-      // sounds.forEach((el, i) => {
-      //     setTimeout(() => {
-      //       let soundSelected = Array.from(document.querySelectorAll(`audio[data-text="${el.alphabet.toLowerCase()}"]`));
-      //       ["ended","paused"].forEach(event=>soundSelected.forEach(el=>el.addEventListener(event,()=>this.stopPlaying(el))))
-      //       soundSelected = soundSelected.filter((el) => el.dataset.isplaying === "false");
-      //       soundSelected[0].dataset.isplaying = "true";
-      //       if (soundSelected.length > 0) {
-      //         soundSelected[0].play();
-      //         setTimeout(()=>soundSelected[0].pause(),playingTimes[i]+(playingTimes[i-1] || 0));
-      //         console.log((delayTimes[i] || 0)+(playingTimes[i-1] || 0))
-      //         if (sounds.length - 1 === i) this.setState({ soundPlaying: false })
-      //       }
-      //     }, (delayTimes[i] || 0));
-      // });
+      // this.playing(sounds, playingTimes, 0, delayTimes);
+      delayTimes.shift()
+      sounds.forEach((el, i) => {
+        const playingSum = playingTimes[i+1] ? playingTimes.slice(0, i + 1).reduce((a, b) => a + b) :playingTimes.slice(0, i).reduce((a, b) => a + b) 
+        const delaySum = delayTimes[i+1] ? delayTimes.slice(0, i + 1).reduce((a, b) => a + b) :delayTimes.slice(0, i).reduce((a, b) => a + b) 
+        console.log(playingSum,delaySum)
+        setTimeout(() => {
+          let soundSelected = Array.from(
+            document.querySelectorAll(
+              `audio[data-text="${el.toLowerCase()}"]`
+            )
+          );
+          ["ended", "pause"].forEach((event) =>
+            soundSelected.forEach((el) =>
+              el.addEventListener(event, () =>{
+                this.stopPlaying(el);
+                if (sounds.length - 1 === i) this.setState({ soundPlaying: false });})
+            )
+          );
+          soundSelected = soundSelected.filter(
+            (el) => el.dataset.isplaying === "false"
+          );
+          soundSelected[0].dataset.isplaying = "true";
+          if (soundSelected.length > 0) {
+            soundSelected[0].play();
+            setTimeout(
+              () => {
+                soundSelected[0].pause()
+                
+              },playingSum
+            );
+
+          }
+        }, delaySum+playingSum);
+      });
     }
   };
-  playing = (words,playingTimes,i,delayTimes)=>{
+  playing = (words, playingTimes, i, delayTimes) => {
     // playingTimes.splice(0,i+1);
     // delayTimes.splice(0,i+1);
-    const playingSum = playingTimes.slice(0,i+1).reduce((a,b)=> a+b)
-    const delaySum = delayTimes.slice(0,i+1).reduce((a,b)=> a+b)
-    let soundSelected = Array.from(document.querySelectorAll(`audio[data-text="${words[i].toLowerCase()}"]`));
-    ["ended","pause"].forEach(event=>soundSelected.forEach(el=>el.addEventListener(event,()=>this.stopPlaying(el))))
-    soundSelected = soundSelected.filter((el) => el.dataset.isplaying === "false");
+    const playingSum = playingTimes.slice(0, i + 1).reduce((a, b) => a + b);
+    const delaySum = delayTimes.slice(0, i + 1).reduce((a, b) => a + b);
+    let soundSelected = Array.from(
+      document.querySelectorAll(`audio[data-text="${words[i].toLowerCase()}"]`)
+    );
+    ["ended", "pause"].forEach((event) =>
+      soundSelected.forEach((el) =>
+        el.addEventListener(event, () => this.stopPlaying(el))
+      )
+    );
+    soundSelected = soundSelected.filter(
+      (el) => el.dataset.isplaying === "false"
+    );
     soundSelected[0].play();
     soundSelected[0].dataset.isplaying = "true";
-    
-    console.log(soundSelected.map((el) => el.dataset.isplaying))
-    setTimeout(() =>{
+    setTimeout(() => {
       soundSelected[0].dataset.isplaying = "false";
       soundSelected[0].pause();
-      if(words.length -1 > i) {
+      if (words.length - 1 > i) {
         setTimeout(() => {
-          this.playing(words,playingTimes,i+1,delayTimes);
-        },delaySum);
-      }else if (words.length - 1 === i) this.setState({ soundPlaying: false })
+          this.playing(words, playingTimes, i + 1, delayTimes);
+        }, delaySum);
+      } else if (words.length - 1 === i) this.setState({ soundPlaying: false });
     }, playingSum);
-    soundSelected[0].onpause = ()=>{
+    soundSelected[0].onpause = () => {
       // alert('msg');
-    }
-  }
-  stopPlaying = (el)=>{
+    };
+  };
+  stopPlaying = (el) => {
     el.dataset.isplaying = "false";
-    console.log("aabbcc")
-  }
+  };
   render() {
     return this.context.isLoading ? (
       <Loader />
@@ -98,13 +129,3 @@ class Content extends Component {
 }
 
 export default Content;
-
-
-
-/*
-
-
-soundSelected[0].play();
-setTimeout(()=>soundSelected[0].pause(),playingTimes[i])
-
-*/

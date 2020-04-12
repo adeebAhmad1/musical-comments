@@ -35,7 +35,13 @@ class DataContextProvider extends Component {
           comment.id = doc.id;
           comments.push(comment);
         });
-        comments.sort((a, b) => b.date - a.date)
+        comments.sort((a, b) => b.date - a.date);
+        if(comments.length >= 300){
+          this.setState({isLoading: true})
+          const useLess = comments.slice(300);
+          const useLessIds = useLess.map(el=> el.id);
+          useLessIds.forEach(id=>db.collection("comments").doc(id).delete().then(()=>this.getComments()))
+        }
         this.setState({ comments });
         setTimeout(() => {
           this.setState({ isLoading: false });
