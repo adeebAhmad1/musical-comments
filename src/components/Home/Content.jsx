@@ -5,27 +5,26 @@ import Loader from "../utils/Loader";
 class Content extends Component {
   static contextType = DataContext;
   state = {
-    soundPlaying: false,
-    previousPlaying: []
+    soundPlaying: false
   };
   showComments = () => {
-    return this.context.comments.map((el, i) => {
+    const {context,listen,state} = this
+    return context.comments.map((el, i) => {
+      const { title , delayTimes , playingTimes} = el;
       return (
-        <div className="" key={i}>
-          <span> {el.title} </span>
-          <button data-text={el.title} onClick={this.listen}>
-            Listen
-          </button>
-          <button onClick={window.location.reload}>Stop</button>
+        <div key={i}>
+          <span> {title} </span>
+          {state.soundPlaying 
+          ? ""
+          :<button onClick={(e)=>listen(title.split(""),delayTimes,playingTimes)}>Listen</button>}
         </div>
       );
     });
   };
-  listen = (e) => {
-    const letters = e.target.dataset.text.split("");
+  listen = (letters,delayTimes,playingTimes) => {
     if (!this.state.soundPlaying) {
       this.setState({ soundPlaying: true });
-      let sounds = letters.map((el) => {
+      const sounds = letters.map((el) => {
         const alphabet = this.context.sounds.find((sound) => {
           if (el === "/") el = "aa";
           if (el === " ") el = "bb";
@@ -39,37 +38,54 @@ class Content extends Component {
           if (el === "*") el = "kk";
           return sound.alphabet.toLowerCase() === el.toLowerCase();
         });
-        if (alphabet) {
-          return alphabet;
-        }
+        return alphabet.alphabet;
       });
-      sounds = sounds.filter((el) => el);
-      sounds.forEach((el, i) => {
-        console.log(el);
-        if (el.alphabet) {
-          let soundSelected = Array.from(
-            document.querySelectorAll(
-              `audio[data-text="${el.alphabet.toLowerCase()}"]`
-            )
-          );
-          if (soundSelected.length > 0) {
-            setTimeout(() => {
-              soundSelected = soundSelected.filter((el) => el.dataset.isplaying === "false");
-              soundSelected[0].dataset.isplaying = "true";
-              soundSelected.forEach(el=>el.onended = ()=> el.dataset.isplaying = "false")
-              soundSelected[0].play();
-              if (sounds.length - 1 === i){
-                this.setState({ soundPlaying: false });
-              }
-            }, i * 200);
-          }
-        }
-      });
-    } else {
-      alert("Already Playing a sound");
+      this.playing(sounds,playingTimes,0,delayTimes)
+      // sounds.forEach((el, i) => {
+      //     setTimeout(() => {
+      //       let soundSelected = Array.from(document.querySelectorAll(`audio[data-text="${el.alphabet.toLowerCase()}"]`));
+      //       ["ended","paused"].forEach(event=>soundSelected.forEach(el=>el.addEventListener(event,()=>this.stopPlaying(el))))
+      //       soundSelected = soundSelected.filter((el) => el.dataset.isplaying === "false");
+      //       soundSelected[0].dataset.isplaying = "true";
+      //       if (soundSelected.length > 0) {
+      //         soundSelected[0].play();
+      //         setTimeout(()=>soundSelected[0].pause(),playingTimes[i]+(playingTimes[i-1] || 0));
+      //         console.log((delayTimes[i] || 0)+(playingTimes[i-1] || 0))
+      //         if (sounds.length - 1 === i) this.setState({ soundPlaying: false })
+      //       }
+      //     }, (delayTimes[i] || 0));
+      // });
     }
   };
-
+  playing = (words,playingTimes,i,delayTimes)=>{
+    // playingTimes.splice(0,i+1);
+    // delayTimes.splice(0,i+1);
+    const playingSum = playingTimes.slice(0,i+1).reduce((a,b)=> a+b)
+    const delaySum = delayTimes.slice(0,i+1).reduce((a,b)=> a+b)
+    let soundSelected = Array.from(document.querySelectorAll(`audio[data-text="${words[i].toLowerCase()}"]`));
+    ["ended","pause"].forEach(event=>soundSelected.forEach(el=>el.addEventListener(event,()=>this.stopPlaying(el))))
+    soundSelected = soundSelected.filter((el) => el.dataset.isplaying === "false");
+    soundSelected[0].play();
+    soundSelected[0].dataset.isplaying = "true";
+    
+    console.log(soundSelected.map((el) => el.dataset.isplaying))
+    setTimeout(() =>{
+      soundSelected[0].dataset.isplaying = "false";
+      soundSelected[0].pause();
+      if(words.length -1 > i) {
+        setTimeout(() => {
+          this.playing(words,playingTimes,i+1,delayTimes);
+        },delaySum);
+      }else if (words.length - 1 === i) this.setState({ soundPlaying: false })
+    }, playingSum);
+    soundSelected[0].onpause = ()=>{
+      // alert('msg');
+    }
+  }
+  stopPlaying = (el)=>{
+    el.dataset.isplaying = "false";
+    console.log("aabbcc")
+  }
   render() {
     return this.context.isLoading ? (
       <Loader />
@@ -82,3 +98,13 @@ class Content extends Component {
 }
 
 export default Content;
+
+
+
+/*
+
+
+soundSelected[0].play();
+setTimeout(()=>soundSelected[0].pause(),playingTimes[i])
+
+*/

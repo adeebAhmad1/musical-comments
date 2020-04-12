@@ -42,10 +42,10 @@ class DataContextProvider extends Component {
         }, 2500);
       });
   };
-  addNewComment = (title) => {
+  addNewComment = (title,delayTimes,playingTimes) => {
     this.setState({ isLoading: true });
     db.collection("comments")
-      .add({ title,date: new Date().getTime() })
+      .add({ title,date: Date.now(),delayTimes,playingTimes })
       .then(this.getComments);
   };
   showAudio = () =>

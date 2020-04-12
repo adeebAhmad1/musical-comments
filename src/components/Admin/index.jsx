@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { db, storageRef } from "../../config/firebase";
 import Loader from "../utils/Loader";
 import { AuthContext } from "../../context/AuthContext"
-
+import { Link } from "react-router-dom"
 class Admin extends Component {
   static contextType = AuthContext
   state = {
@@ -172,6 +172,7 @@ class Admin extends Component {
     return this.context.isAuth ? (
       <div>
         <h1>All Sounds</h1>
+        <Link to="/">Go back</Link>
         {this.state.isLoading ? (
           <Loader />
         ) : (
