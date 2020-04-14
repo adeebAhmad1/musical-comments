@@ -5,30 +5,30 @@ class Comments extends Component {
   static contextType = DataContext;
   state = {
     down: 0,
-    startingTime: [],
-    endingTime: [],
+    startingTime: undefined,
+    endingTime: undefined,
     playingTimes: [],
     delayTimes: [],
     isOk: true
   };
   onKeyUp = (e) => {
     if (e.which === 8) return e.preventDefault();
-    const { startingTime, endingTime, playingTimes, isOk } = this.state;
+    const { startingTime, playingTimes, isOk } = this.state;
     if(isOk){
       if (e.target.value.length < 100) {
-        this.setState({ down: 0, endingTime: [...endingTime, Date.now()] });
-        playingTimes.push(Date.now() - startingTime[startingTime.length - 1]);
+        this.setState({ down: 0, endingTime: Date.now() });
+        playingTimes.push(Date.now() - startingTime);
         this.setState({ playingTimes });
       }
     }
   };
   onKeyDown = (e) => {
-    const { down, startingTime, endingTime, delayTimes,isOk } = this.state;
+    const { down , endingTime, delayTimes,isOk } = this.state;
     if (e.which === 8) return e.preventDefault();
     if(isOk){
       if (down === 0) {
-        this.setState({ startingTime: [...startingTime, Date.now()], down: 1 });
-        delayTimes.push(Date.now() - endingTime[endingTime.length - 1]);
+        this.setState({ startingTime: Date.now(), down: 1 });
+        delayTimes.push((Date.now() - (endingTime || Date.now()))|| 0);
         this.setState({ delayTimes });
         if (e.target.value.length < 100) {
           if (e.key) {
@@ -43,20 +43,13 @@ class Comments extends Component {
             if (key === "|") key = "ii";
             if (key === ":") key = "jj";
             if (key === "*") key = "kk";
-            let soundSelected = Array.from(
-              document.querySelectorAll(
-                `audio[data-text="${key.toLowerCase()}"]`
-              )
-            );
-            soundSelected = soundSelected.filter(
-              (el) => el.dataset.isplaying === "false"
-            );
+            let soundSelected = Array.from(document.querySelectorAll(`audio[data-text="${key.toLowerCase()}"]`));
+            soundSelected = soundSelected.filter((el) => el.dataset.isplaying === "false");
+            
             if (soundSelected.length > 0) {
-              soundSelected.forEach(
-                (el) => (el.onended = () => (el.dataset.isplaying = false))
-              );
               soundSelected[0].play();
-              soundSelected[0].dataset.isplaying = true;
+              ["ended", "pause"].forEach((event) => soundSelected[0].addEventListener(event, () => soundSelected[0].dataset.isplaying = "false"));
+              soundSelected[0].dataset.isplaying = "true";
             }
           }
       }
@@ -66,7 +59,7 @@ class Comments extends Component {
   onReset = ()=>{
     this.refs.comment.value = "";
     clearTimeout(window.timeOut)
-    this.setState({startingTime: [], delayTimes: [],endingTime: [],playingTimes: [],isOk: true})
+    this.setState({startingTime: undefined, delayTimes: [],endingTime: undefined,playingTimes: [],isOk: true})
   }
   onFocus = ()=>window.timeOut = setTimeout(() => this.setState({isOk: false}), 40000);
   render() {
@@ -78,9 +71,8 @@ class Comments extends Component {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            context.addNewComment(refs.comment.value,state.delayTimes,state.playingTimes);
-            this.setState({startingTime: [], delayTimes: [],endingTime: [],playingTimes: [],isOk: true})
-            refs.comment.value = "";
+            context.addNewComment(refs.comment.value,state.delayTimes,state.playingTimes,refs.name.value);
+            onReset()
           }}
         >
           <textarea
@@ -96,8 +88,9 @@ class Comments extends Component {
             cols="70"
             rows="5"
             placeholder="Write a comment.."
-            maxLength={this.state.isOk ? "100" : this.refs.comment.value.length}
+            maxLength={refs.comment ? (state.isOk ? "100" : refs.comment.value.length): "100"}
           ></textarea>
+          <input placeholder="Your Name" required type="text" ref="name"/>
           <button>Comment</button>
         </form>
           <button onClick={onReset}>Restart</button>

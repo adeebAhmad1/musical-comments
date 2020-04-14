@@ -22,5 +22,5 @@ PHASE 2
 
 **4)Only place for 300 comments, when uploading comment 301, the oldest one will be delete, so only the newest will be saved and shown in the web.**
 
-5)There will be a way for the visitor, to put his name next to his comment comment
+**5)There will be a way for the visitor, to put his name next to his comment comment**
 *todo*}
